@@ -5,13 +5,25 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
 
   tags {
-    Name = "My VPC"  
+    Name = "My VPC"
   }
 }
 
-resource "aws_internet_gateway" "igw" {    
-    vpc_id = "${aws_vpc.main.id}"
+resource "aws_internet_gateway" "igw" {
+  vpc_id = "${aws_vpc.main.id}"
+
   tags {
     Name = "IGW"
   }
+}
+
+resource "aws_eip" "eip" {
+  vpc = true
+}
+
+resource "aws_nat_gateway" "natgw" {
+  allocation_id = "${aws_eip.eip.id}"
+  subnet_id     = "${aws_subnet.public.id}"
+
+  depends_on = ["aws_internet_gateway.igw"]
 }
